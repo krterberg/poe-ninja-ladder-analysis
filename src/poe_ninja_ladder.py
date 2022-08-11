@@ -3,15 +3,15 @@ import json
 import requests
 from time import sleep
 
-base_url = 'https://poe.ninja/challenge/builds'
-league_name = 'sentinel'
+BASE_URL = 'https://poe.ninja/challenge/builds'
+LEAGUE_NAME = 'sentinel'
 
-response = requests.get(base_url)
+response = requests.get(BASE_URL)
 trial_league_ids = response.content.decode()
 trial_league_ids = re.findall("\"name\":(.+?),\"timeMachineLabels\"", trial_league_ids)
 trial_league_ids = [re.split(",", x)[1:3] for x in list(trial_league_ids)]
 # get rid of leagues/events that aren't the challenge league
-trial_league_ids = [x for x in list(trial_league_ids) if x[0].find(league_name) != -1]
+trial_league_ids = [x for x in list(trial_league_ids) if x[0].find(LEAGUE_NAME) != -1]
 # league request versions are duplicated for some reason, but it seems to use the first for the request
 trial_league_ids = trial_league_ids[0:len(trial_league_ids):2]
 
@@ -43,5 +43,5 @@ for (snapshotName, version) in zip(snapshotNames, versions):
 
     ladder_data.update({snapshotName: ladder_days})
 
-with open(f'D:/Documents/{league_name}_ladders.json', 'w') as f:
+with open(f'./data/{LEAGUE_NAME}_ladders.json', 'w') as f:
     json.dump(ladder_data, f, sort_keys=False)
