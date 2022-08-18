@@ -23,7 +23,8 @@ def process_league_day(league_day: dict, league_label, day_label) -> pd.DataFram
     skill_users = {key:[user_names[value] for value in values] for (key, values) in skill_users.items()}
     skill_users = pd.DataFrame.from_dict(skill_users, orient='index').stack().reset_index()
     skill_users.columns = ['skill_name', '_', 'character_name']
-    
+    skill_users.drop(['_'], axis=1, inplace=True)
+
     user_skill_modes = {skill_modes[int(key)]['name']:values for (key, values) in user_skill_modes.items()}
     user_skill_modes = {key:np.cumsum(values) for (key, values) in user_skill_modes.items()}
     user_skill_modes = {key:[user_names[value] for value in values] for (key, values) in user_skill_modes.items()}
@@ -38,8 +39,8 @@ def process_league_day(league_day: dict, league_label, day_label) -> pd.DataFram
     characters_levels_ranks = pd.DataFrame.from_dict(zip(user_names, user_levels, user_ranks))
     characters_levels_ranks.columns = ['character_name', 'character_level', 'ladder rank']
 
-    characters_skills_level = skill_users.merge(characters_levels_ranks, on='character_name')
-    characters_skills_level = skill_users.merge(user_skill_modes, on='character_name')
+    characters_skills_level = characters_levels_ranks.merge(skill_users, on='character_name')
+    characters_skills_level = characters_skills_level.merge(user_skill_modes, on='character_name')
     characters_skills_level['league'] = league_label
     characters_skills_level['day'] = day_label
     return characters_skills_level
@@ -56,4 +57,4 @@ for league_name in sentinel_leagues.keys():
 
 league_days = pd.concat(league_days)
 
-league_days.to_csv('./data/sentinel_ladders_processed.csv')
+league_days.to_csv('./data/sentinel_ladders_processed.csv', index=False)
